@@ -1,0 +1,125 @@
+/* Base styles for dual subtitle overlay */
+
+#dual-subtitle-overlay {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+  text-align: center;
+  width: 90%;
+  max-width: 1200px;
+  display: none;
+}
+
+#dual-subtitle-overlay.fullscreen {
+  bottom: 80px;
+}
+
+.dual-subtitle-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Below layout mode */
+.dual-subtitle-wrapper.layout-below {
+  flex-direction: column;
+}
+
+/* Side-by-side layout mode */
+.dual-subtitle-wrapper.layout-side-by-side {
+  flex-direction: row;
+  justify-content: center;
+  gap: 30px;
+}
+
+/* Original subtitle */
+.dual-subtitle-original {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    -1px -1px 2px rgba(0, 0, 0, 0.9),
+    1px -1px 2px rgba(0, 0, 0, 0.9),
+    -1px 1px 2px rgba(0, 0, 0, 0.9);
+  line-height: 1.4;
+  padding: 5px 10px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: none;
+  max-width: 100%;
+  word-wrap: break-word;
+  /* Smooth transitions to reduce flickering */
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* Translated subtitle */
+.dual-subtitle-translated {
+  font-size: 1.3em;
+  font-weight: normal;
+  color: #ffff00;
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    -1px -1px 2px rgba(0, 0, 0, 0.9),
+    1px -1px 2px rgba(0, 0, 0, 0.9),
+    -1px 1px 2px rgba(0, 0, 0, 0.9);
+  line-height: 1.4;
+  padding: 5px 10px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.25);
+  display: none;
+  max-width: 100%;
+  word-wrap: break-word;
+  /* Smooth transitions to reduce flickering */
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* Side-by-side specific styles */
+.dual-subtitle-wrapper.layout-side-by-side .dual-subtitle-original,
+.dual-subtitle-wrapper.layout-side-by-side .dual-subtitle-translated {
+  flex: 0 1 45%;
+  text-align: left;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #dual-subtitle-overlay {
+    width: 95%;
+    bottom: 50px;
+  }
+
+  .dual-subtitle-original {
+    font-size: 1.2em;
+  }
+
+  .dual-subtitle-translated {
+    font-size: 1em;
+  }
+
+  .dual-subtitle-wrapper.layout-side-by-side {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .dual-subtitle-wrapper.layout-side-by-side .dual-subtitle-original,
+  .dual-subtitle-wrapper.layout-side-by-side .dual-subtitle-translated {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* Hide original platform subtitles to avoid duplication */
+/* This is optional and can be removed if users want to see both */
+/*
+.player-timedtext,
+.ytp-caption-window-container,
+.caption-text-box {
+  opacity: 0.3 !important;
+}
+*/

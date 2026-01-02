@@ -1,0 +1,20 @@
+/* Hulu-specific styles */
+
+/* Adjust positioning for Hulu player */
+#dual-subtitle-overlay {
+  bottom: 65px;
+}
+
+/* Fullscreen adjustments for Hulu */
+#dual-subtitle-overlay.fullscreen {
+  bottom: 85px;
+}
+
+/* Hulu has various player layouts */
+.dual-subtitle-original {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.dual-subtitle-translated {
+  background-color: rgba(0, 0, 0, 0.35);
+}

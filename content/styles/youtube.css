@@ -1,0 +1,25 @@
+/* YouTube-specific styles */
+
+/* Hide YouTube's native subtitles visually but keep in DOM for extraction */
+.ytp-caption-window-container,
+.caption-window {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Adjust positioning for YouTube player */
+#dual-subtitle-overlay {
+  bottom: 55px;
+}
+
+/* Fullscreen adjustments for YouTube */
+#dual-subtitle-overlay.fullscreen {
+  bottom: 75px;
+}
+
+/* YouTube's player controls are lower */
+@media (max-width: 768px) {
+  #dual-subtitle-overlay {
+    bottom: 45px;
+  }
+}

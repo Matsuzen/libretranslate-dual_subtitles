@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual Subtitles Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>Dual Subtitles</h1>
+      <p class="subtitle">Watch with two subtitles simultaneously</p>
+    </header>
+
+    <main class="popup-content">
+      <!-- Enable/Disable Toggle -->
+      <div class="setting-group">
+        <label class="toggle-container">
+          <span class="toggle-label">Enable Dual Subtitles</span>
+          <input type="checkbox" id="enableToggle" class="toggle-input">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Language Settings -->
+      <div class="setting-group">
+        <label for="sourceLang">Original Language:</label>
+        <select id="sourceLang" class="select-input">
+          <option value="auto">Auto-detect</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label for="targetLang">Translation Language:</label>
+        <select id="targetLang" class="select-input">
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <!-- Layout Mode -->
+      <div class="setting-group">
+        <label for="layoutMode">Layout Mode:</label>
+        <select id="layoutMode" class="select-input">
+          <option value="below">Below Original</option>
+          <option value="side-by-side">Side by Side</option>
+        </select>
+      </div>
+
+      <!-- API Endpoint -->
+      <div class="setting-group">
+        <label for="apiEndpoint">LibreTranslate API:</label>
+        <input type="text" id="apiEndpoint" class="text-input" placeholder="https://libretranslate.com">
+        <p class="help-text">Use default or self-hosted LibreTranslate instance</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button id="saveButton" class="btn btn-primary">Save Settings</button>
+        <button id="clearCacheButton" class="btn btn-secondary">Clear Cache</button>
+      </div>
+
+      <!-- Status -->
+      <div id="status" class="status hidden"></div>
+
+      <!-- Debug Mode -->
+      <div class="setting-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="debugMode" class="checkbox-input">
+          <span class="checkbox-label">Debug Mode (Console Logs)</span>
+        </label>
+      </div>
+    </main>
+
+    <footer class="popup-footer">
+      <p class="footer-text">
+        <a href="https://github.com/LibreTranslate/LibreTranslate" target="_blank">About LibreTranslate</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

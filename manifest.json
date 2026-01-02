@@ -1,0 +1,110 @@
+{
+  "manifest_version": 3,
+  "name": "Dual Subtitles for Streaming",
+  "version": "1.0.0",
+  "description": "Display original and translated subtitles simultaneously on Netflix, YouTube, and Hulu",
+
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+
+  "host_permissions": [
+    "https://*.netflix.com/*",
+    "https://*.youtube.com/*",
+    "https://*.hulu.com/*",
+    "https://libretranslate.com/*",
+    "https://*.libretranslate.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.netflix.com/*"
+      ],
+      "js": [
+        "utils/constants.js",
+        "utils/logger.js",
+        "utils/storage.js",
+        "content/core/cache-manager.js",
+        "content/core/translation-manager.js",
+        "content/core/subtitle-queue.js",
+        "content/core/dom-injector.js",
+        "content/core/subtitle-renderer.js",
+        "content/extractors/base-extractor.js",
+        "content/extractors/netflix-extractor.js",
+        "content/main.js"
+      ],
+      "css": [
+        "content/styles/base.css",
+        "content/styles/netflix.css"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://*.youtube.com/*"
+      ],
+      "js": [
+        "utils/constants.js",
+        "utils/logger.js",
+        "utils/storage.js",
+        "content/core/cache-manager.js",
+        "content/core/translation-manager.js",
+        "content/core/subtitle-queue.js",
+        "content/core/dom-injector.js",
+        "content/core/subtitle-renderer.js",
+        "content/extractors/base-extractor.js",
+        "content/extractors/youtube-extractor.js",
+        "content/main.js"
+      ],
+      "css": [
+        "content/styles/base.css",
+        "content/styles/youtube.css"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://*.hulu.com/*"
+      ],
+      "js": [
+        "utils/constants.js",
+        "utils/logger.js",
+        "utils/storage.js",
+        "content/core/cache-manager.js",
+        "content/core/translation-manager.js",
+        "content/core/subtitle-queue.js",
+        "content/core/dom-injector.js",
+        "content/core/subtitle-renderer.js",
+        "content/extractors/base-extractor.js",
+        "content/extractors/hulu-extractor.js",
+        "content/main.js"
+      ],
+      "css": [
+        "content/styles/base.css",
+        "content/styles/hulu.css"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

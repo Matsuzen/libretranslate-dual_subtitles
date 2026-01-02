@@ -1,0 +1,20 @@
+/* Netflix-specific styles */
+
+/* Adjust positioning for Netflix player */
+#dual-subtitle-overlay {
+  bottom: 70px;
+}
+
+/* Fullscreen adjustments for Netflix */
+#dual-subtitle-overlay.fullscreen {
+  bottom: 90px;
+}
+
+/* Netflix has a dark background, adjust colors for better contrast */
+.dual-subtitle-original {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.dual-subtitle-translated {
+  background-color: rgba(0, 0, 0, 0.35);
+}
