@@ -118,15 +118,44 @@ class DOMInjector {
 
     if (isFullscreen !== this.isFullscreen) {
       this.isFullscreen = isFullscreen;
+      console.log('[DualSubs] Fullscreen state changed:', isFullscreen);
+      console.log('[DualSubs] Container element:', this.container);
       this.logger?.debug('Fullscreen state changed:', isFullscreen);
 
       // Update container position/styling if needed
       if (this.container) {
         if (isFullscreen) {
+          // Get the fullscreen element
+          const fullscreenElement = document.fullscreenElement ||
+                                   document.webkitFullscreenElement ||
+                                   document.mozFullScreenElement ||
+                                   document.msFullscreenElement;
+
+          console.log('[DualSubs] Fullscreen element:', fullscreenElement);
+
+          // Move overlay to be a direct child of fullscreen element
+          // This fixes position:fixed not working when parent has transform/perspective
+          if (fullscreenElement && this.container.parentElement !== fullscreenElement) {
+            console.log('[DualSubs] Moving overlay to fullscreen element');
+            fullscreenElement.appendChild(this.container);
+          }
+
           this.container.classList.add('fullscreen');
+          console.log('[DualSubs] Added fullscreen class to container');
+          console.log('[DualSubs] Container display:', window.getComputedStyle(this.container).display);
+          console.log('[DualSubs] Container position:', window.getComputedStyle(this.container).position);
         } else {
           this.container.classList.remove('fullscreen');
+          console.log('[DualSubs] Removed fullscreen class from container');
+
+          // Move overlay back to video container
+          if (this.videoElement && this.videoElement.parentElement) {
+            this.videoElement.parentElement.appendChild(this.container);
+            console.log('[DualSubs] Moved overlay back to video container');
+          }
         }
+      } else {
+        console.error('[DualSubs] Container is null when trying to handle fullscreen');
       }
     }
   }
@@ -226,6 +255,35 @@ class DOMInjector {
    */
   getVideoElement() {
     return this.videoElement;
+  }
+
+  /**
+   * Diagnostic: Check overlay state
+   * Call from console: window.DualSubsInjector.diagnose()
+   */
+  diagnose() {
+    console.group('[DualSubs] Overlay Diagnostics');
+    console.log('Container exists:', !!this.container);
+    console.log('Container element:', this.container);
+    console.log('Container in DOM:', this.container && document.body.contains(this.container));
+    console.log('Is fullscreen:', this.isFullscreen);
+    console.log('Fullscreen element:', document.fullscreenElement || document.webkitFullscreenElement);
+
+    if (this.container) {
+      const computed = window.getComputedStyle(this.container);
+      console.log('Container ID:', this.container.id);
+      console.log('Container classes:', this.container.className);
+      console.log('Inline display:', this.container.style.display);
+      console.log('Computed display:', computed.display);
+      console.log('Computed position:', computed.position);
+      console.log('Computed z-index:', computed.zIndex);
+      console.log('Computed bottom:', computed.bottom);
+      console.log('Computed visibility:', computed.visibility);
+      console.log('Computed opacity:', computed.opacity);
+      console.log('Container bounding rect:', this.container.getBoundingClientRect());
+    }
+
+    console.groupEnd();
   }
 }
 

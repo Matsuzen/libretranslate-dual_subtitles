@@ -179,6 +179,10 @@ class SubtitleRenderer {
     // Show container
     if (this.container) {
       this.container.style.display = 'block';
+      console.log('[DualSubs][Renderer] Container display set to block');
+      console.log('[DualSubs][Renderer] Container classes:', this.container.className);
+      console.log('[DualSubs][Renderer] Computed display:', window.getComputedStyle(this.container).display);
+      console.log('[DualSubs][Renderer] Computed position:', window.getComputedStyle(this.container).position);
     }
 
     this.logger?.debug('Rendered subtitles:', {

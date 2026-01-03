@@ -3,6 +3,8 @@
 (function() {
   'use strict';
 
+  console.log('[DualSubs] Main content script loaded on:', window.location.hostname);
+
   const CONSTANTS = window.DUAL_SUBS_CONSTANTS;
   const logger = window.DualSubsLogger;
 
@@ -32,13 +34,16 @@
    * Initialize the appropriate extractor for the platform
    */
   async function initializeExtractor() {
+    console.log('[DualSubs] Initializing Dual Subtitles extension');
     logger?.info('Initializing Dual Subtitles extension');
 
     // Detect platform
     currentPlatform = detectPlatform();
+    console.log('[DualSubs] Platform detected:', currentPlatform);
     logger?.info('Platform detected:', currentPlatform);
 
     if (currentPlatform === CONSTANTS.PLATFORMS.UNKNOWN) {
+      console.warn('[DualSubs] Unsupported platform');
       logger?.warn('Unsupported platform');
       return;
     }
@@ -47,6 +52,7 @@
     const settings = await chrome.storage.sync.get(['dualSubsEnabled']);
     isEnabled = settings.dualSubsEnabled ?? true;
 
+    console.log('[DualSubs] Extension enabled:', isEnabled);
     if (!isEnabled) {
       logger?.info('Extension is disabled');
       return;
@@ -61,17 +67,22 @@
         currentExtractor = window.YouTubeExtractor;
         break;
       case CONSTANTS.PLATFORMS.HULU:
+        console.log('[DualSubs] Getting Hulu extractor:', window.HuluExtractor);
         currentExtractor = window.HuluExtractor;
         break;
       default:
+        console.error('[DualSubs] No extractor available for platform:', currentPlatform);
         logger?.error('No extractor available for platform:', currentPlatform);
         return;
     }
 
     // Start the extractor
     if (currentExtractor) {
+      console.log('[DualSubs] Starting extractor for', currentPlatform, currentExtractor);
       logger?.info('Starting extractor for', currentPlatform);
       currentExtractor.start();
+    } else {
+      console.error('[DualSubs] Extractor is null/undefined for platform:', currentPlatform);
     }
   }
 

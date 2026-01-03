@@ -1,5 +1,23 @@
 /* Hulu-specific styles */
 
+/* Hide Hulu's original subtitles to prevent overlap */
+/* Be specific to avoid hiding our dual subtitle overlay */
+.caption-text-box:not([class*="dual-subtitle"]),
+.ClosedCaption__container:not([class*="dual-subtitle"]),
+.CaptionBox:not([class*="dual-subtitle"]),
+.PlayerCaptionsContainer:not([class*="dual-subtitle"]),
+[class*="Captions"]:not([class*="dual-subtitle"]):not([id*="dual-subtitle"]),
+[class*="subtitle"]:not([class*="dual-subtitle"]):not([id*="dual-subtitle"]),
+[class*="Subtitle"]:not([class*="dual-subtitle"]):not([id*="dual-subtitle"]),
+[data-automationid="caption-text"]:not([class*="dual-subtitle"]),
+[data-testid*="caption"]:not([class*="dual-subtitle"]):not([id*="dual-subtitle"]),
+.webvtt-cue:not([class*="dual-subtitle"]),
+.vtt-cue:not([class*="dual-subtitle"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 /* Adjust positioning for Hulu player */
 #dual-subtitle-overlay {
   bottom: 65px;
@@ -7,7 +25,15 @@
 
 /* Fullscreen adjustments for Hulu */
 #dual-subtitle-overlay.fullscreen {
-  bottom: 85px;
+  position: fixed !important;
+  bottom: 100px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483647 !important; /* Maximum z-index value */
+  width: 90% !important;
+  max-width: 1200px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Hulu has various player layouts */

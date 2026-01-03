@@ -72,7 +72,15 @@ const CONSTANTS = {
       CONTAINER: [
         '.Player__container',
         '#content-player',
-        '[class*="Player"]'
+        '[class*="Player"]',
+        // Additional modern Hulu containers
+        '[data-automationid="player"]',
+        '[class*="VideoPlayer"]',
+        '[class*="video-player"]',
+        '.VideoContainer',
+        '#video-player',
+        // Fallback to body if nothing else works
+        'body'
       ],
       VIDEO: 'video'
     }

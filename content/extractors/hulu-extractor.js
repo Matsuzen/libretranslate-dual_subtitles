@@ -1,8 +1,11 @@
 // Hulu subtitle extractor
 
+console.log('[DualSubs][Hulu] Hulu extractor script loaded');
+
 class HuluExtractor extends BaseExtractor {
   constructor() {
     super('Hulu');
+    console.log('[DualSubs][Hulu] Hulu extractor constructed');
     this.containerElement = null;
     this.reinitTimer = null;
   }
@@ -11,6 +14,8 @@ class HuluExtractor extends BaseExtractor {
    * Initialize Hulu extractor
    */
   init() {
+    // Always log to console for debugging
+    console.log('[DualSubs][Hulu] Initializing Hulu extractor');
     this.logger?.info('Initializing Hulu extractor');
 
     // Wait for video container to load
@@ -21,6 +26,9 @@ class HuluExtractor extends BaseExtractor {
    * Wait for Hulu elements to load
    */
   async waitForElements() {
+    console.log('[DualSubs][Hulu] Waiting for elements...');
+    console.log('[DualSubs][Hulu] Looking for selectors:', this.CONSTANTS.SELECTORS.HULU.CONTAINER);
+
     try {
       // Wait for container (try multiple selectors)
       this.containerElement = await this.waitForElement(
@@ -28,6 +36,7 @@ class HuluExtractor extends BaseExtractor {
         15000
       );
 
+      console.log('[DualSubs][Hulu] Container found!', this.containerElement);
       this.logger?.info('Hulu container found');
 
       // Set up observer on container
@@ -43,11 +52,15 @@ class HuluExtractor extends BaseExtractor {
       this.setupReinitTimer();
 
     } catch (error) {
+      console.error('[DualSubs][Hulu] Failed to initialize:', error);
+      console.log('[DualSubs][Hulu] Current page structure:', document.body.className);
+      console.log('[DualSubs][Hulu] Available player elements:', document.querySelectorAll('[class*="layer"], [class*="Player"]'));
       this.logger?.error('Failed to initialize Hulu extractor:', error);
 
       // Retry initialization after a delay
       setTimeout(() => {
         if (this.isActive) {
+          console.log('[DualSubs][Hulu] Retrying initialization...');
           this.logger?.info('Retrying Hulu initialization');
           this.init();
         }
@@ -144,15 +157,76 @@ class HuluExtractor extends BaseExtractor {
    * @returns {string}
    */
   extractText() {
+    // Words that indicate UI/settings text, not subtitles
+    const uiKeywords = [
+      'opaque', 'semi-transparent', 'transparent', 'none',
+      'caption', 'subtitle', 'settings', 'options',
+      'background', 'font', 'size', 'color', 'style',
+      'window', 'character', 'edge'
+    ];
+
+    // Helper to check if text is UI/settings/metadata
+    const isUIText = (text) => {
+      const lower = text.toLowerCase();
+
+      // Check for specific placeholder/label patterns
+      if (lower.match(/^(subtitles?\s+\w+|untertitel\s+\w+|\w+\s+subtitles?)$/i)) {
+        return true; // Matches "subtitles English", "English Subtitles", "untertitel Englisch", etc.
+      }
+
+      // Check for episode/show metadata patterns
+      if (lower.match(/s\d+\s*e\d+/i)) {
+        return true; // Matches "S3 E1", "S1E5", etc.
+      }
+
+      // Check for "up next" or title patterns
+      if (lower.includes('up next') || lower.includes('next episode')) {
+        return true;
+      }
+
+      // Skip very long text (likely not a subtitle)
+      if (text.length > 200) {
+        return true;
+      }
+
+      // Check if text has lots of punctuation (likely a title with multiple items)
+      const punctuationCount = (text.match(/[,;:]/g) || []).length;
+      if (punctuationCount >= 3) {
+        return true; // Likely "Title 1, Title 2, Title 3" format
+      }
+
+      // Check for CSS code patterns
+      if (text.includes('@keyframes') || text.includes('{') && text.includes('}') && text.includes(':')) {
+        return true; // Likely CSS code
+      }
+
+      // Check for code/technical patterns
+      if (text.includes('opacity:') || text.includes('display:') || text.match(/\d+px/)) {
+        return true; // Likely CSS or technical text
+      }
+
+      // Check if text contains multiple UI keywords
+      const keywordCount = uiKeywords.filter(keyword => lower.includes(keyword)).length;
+      return keywordCount >= 2 || lower.match(/^(opaque|semi-transparent|transparent|none)$/i);
+    };
+
     // Try multiple selectors for Hulu captions
     // Hulu's structure can vary
     const selectors = [
       '.caption-text-box',
       '.ClosedCaption__container',
-      '[class*="caption"] [class*="text"]',
-      '[class*="Caption"]',
       '.CaptionBox',
-      '[data-automationid="caption-text"]'
+      '[data-automationid="caption-text"]',
+      // Additional modern Hulu selectors
+      '[class*="Captions"]:not([class*="Settings"]):not([class*="Menu"])',
+      '[class*="subtitle"]:not([class*="settings"]):not([class*="menu"])',
+      '[class*="Subtitle"]:not([class*="Settings"]):not([class*="Menu"])',
+      '.PlayerCaptionsContainer',
+      '[data-testid*="caption"]:not([data-testid*="menu"]):not([data-testid*="settings"])',
+      '[data-testid*="subtitle"]:not([data-testid*="menu"]):not([data-testid*="settings"])',
+      // Try video track display
+      '.webvtt-cue',
+      '.vtt-cue'
     ];
 
     for (const selector of selectors) {
@@ -161,33 +235,49 @@ class HuluExtractor extends BaseExtractor {
 
         if (element && element.textContent) {
           const text = element.textContent.trim();
-          if (text.length > 0) {
+          if (text.length > 0 && !isUIText(text)) {
+            console.log('[DualSubs][Hulu] Extracted text from', selector, ':', text.substring(0, 50));
             return text;
+          } else if (text.length > 0) {
+            console.log('[DualSubs][Hulu] Skipped UI text from', selector, ':', text.substring(0, 50));
           }
         }
       } catch (error) {
-        this.logger?.debug(`Error with selector ${selector}:`, error);
+        // Silently continue - some selectors may be invalid
       }
     }
 
     // Try finding by class pattern
     try {
-      const captionElements = document.querySelectorAll('[class*="caption"], [class*="Caption"]');
+      const captionElements = document.querySelectorAll('[class*="caption"], [class*="Caption"], [class*="subtitle"], [class*="Subtitle"]');
+
+      if (captionElements.length > 0) {
+        // Debug: show what we found
+        console.log('[DualSubs][Hulu] Found potential caption elements:', captionElements.length);
+      }
+
       for (const element of captionElements) {
         const text = element.textContent?.trim();
         if (text && text.length > 0 && text.length < 500) {
+          // Skip UI/settings text
+          if (isUIText(text)) {
+            continue;
+          }
+
           // Reasonable subtitle length
           // Avoid getting entire player text
           const hasVideo = element.querySelector('video');
           const hasControls = element.querySelector('[class*="control"]');
+          const hasSettings = element.querySelector('[class*="settings"], [class*="Settings"], [class*="menu"], [class*="Menu"]');
 
-          if (!hasVideo && !hasControls) {
+          if (!hasVideo && !hasControls && !hasSettings) {
+            console.log('[DualSubs][Hulu] Extracted from pattern match:', text.substring(0, 50));
             return text;
           }
         }
       }
     } catch (error) {
-      this.logger?.debug('Error extracting from caption pattern:', error);
+      console.error('[DualSubs][Hulu] Error extracting from caption pattern:', error);
     }
 
     // No subtitle found
@@ -228,6 +318,46 @@ class HuluExtractor extends BaseExtractor {
     setTimeout(() => {
       this.start();
     }, 2000);
+  }
+
+  /**
+   * Diagnostic: Find all potential subtitle elements
+   * Call from console: window.HuluExtractor.diagnoseSubtitles()
+   */
+  diagnoseSubtitles() {
+    console.group('[DualSubs][Hulu] Subtitle Diagnostics');
+
+    // Find all elements that might contain subtitles
+    const patterns = [
+      '[class*="caption"]',
+      '[class*="Caption"]',
+      '[class*="subtitle"]',
+      '[class*="Subtitle"]',
+      '[class*="cue"]',
+      '[data-automationid*="caption"]',
+      '[data-testid*="caption"]'
+    ];
+
+    patterns.forEach(pattern => {
+      const elements = document.querySelectorAll(pattern);
+      if (elements.length > 0) {
+        console.group(`Pattern: ${pattern} (${elements.length} elements)`);
+        elements.forEach((el, index) => {
+          const text = el.textContent?.trim().substring(0, 100);
+          const classes = el.className;
+          const isVisible = el.offsetParent !== null;
+          console.log(`[${index}]`, {
+            text,
+            classes,
+            isVisible,
+            element: el
+          });
+        });
+        console.groupEnd();
+      }
+    });
+
+    console.groupEnd();
   }
 }
 
