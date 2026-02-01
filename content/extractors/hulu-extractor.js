@@ -169,11 +169,6 @@ class HuluExtractor extends BaseExtractor {
     const isUIText = (text) => {
       const lower = text.toLowerCase();
 
-      // Check for specific placeholder/label patterns
-      if (lower.match(/^(subtitles?\s+\w+|untertitel\s+\w+|\w+\s+subtitles?)$/i)) {
-        return true; // Matches "subtitles English", "English Subtitles", "untertitel Englisch", etc.
-      }
-
       // Check for episode/show metadata patterns
       if (lower.match(/s\d+\s*e\d+/i)) {
         return true; // Matches "S3 E1", "S1E5", etc.
@@ -193,16 +188,6 @@ class HuluExtractor extends BaseExtractor {
       const punctuationCount = (text.match(/[,;:]/g) || []).length;
       if (punctuationCount >= 3) {
         return true; // Likely "Title 1, Title 2, Title 3" format
-      }
-
-      // Check for CSS code patterns
-      if (text.includes('@keyframes') || text.includes('{') && text.includes('}') && text.includes(':')) {
-        return true; // Likely CSS code
-      }
-
-      // Check for code/technical patterns
-      if (text.includes('opacity:') || text.includes('display:') || text.match(/\d+px/)) {
-        return true; // Likely CSS or technical text
       }
 
       // Check if text contains multiple UI keywords

@@ -170,6 +170,68 @@ After starting the server:
 3. Save settings
 4. Enjoy unlimited free translations!
 
+## Convenience Scripts
+
+You can create simple scripts to quickly start/stop the server without typing commands.
+
+### Windows (.bat files)
+
+Create these files in the same directory as `libretranslate-server.exe`:
+
+**start-server.bat** - Start the server:
+```batch
+@echo off
+echo Starting LibreTranslate server...
+libretranslate-server.exe start
+pause
+```
+
+**stop-server.bat** - Stop the server:
+```batch
+@echo off
+echo Stopping LibreTranslate server...
+libretranslate-server.exe stop
+pause
+```
+
+**status.bat** - Check server status:
+```batch
+@echo off
+libretranslate-server.exe status
+pause
+```
+
+**install-deps.bat** - Install dependencies:
+```batch
+@echo off
+echo Installing LibreTranslate dependencies...
+libretranslate-server.exe install
+pause
+```
+
+Double-click any `.bat` file to run it.
+
+### macOS/Linux (shell scripts)
+
+Create these files in the same directory as `libretranslate-server`:
+
+**start-server.sh**:
+```bash
+#!/bin/bash
+./libretranslate-server start
+```
+
+**stop-server.sh**:
+```bash
+#!/bin/bash
+./libretranslate-server stop
+```
+
+Make them executable:
+```bash
+chmod +x start-server.sh stop-server.sh
+```
+
 ## Advanced Usage
 
 ### Background Server
@@ -256,11 +318,11 @@ cd libretranslate-server
 # Download dependencies
 go mod download
 
-# Build
-go build -o libretranslate-server
+# Build for current platform
+make build
 
-# Or build for all platforms
-./build-all.sh  # See below
+# Or build for all platforms (macOS, Linux, Windows)
+make build-all
 ```
 
 ### Cross-Compilation

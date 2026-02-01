@@ -66,9 +66,9 @@ func startServer(host string, port int, verbose bool) error {
 	go streamOutput(stderr, "ERROR")
 
 	// Wait for server to be ready
-	color.Cyan("⏳ Waiting for server to be ready (this may take 1-3 minutes on first startup)...\n")
+	color.Cyan("⏳ Waiting for server to be ready (this may take 5-10 minutes on first startup)...\n")
 	color.Yellow("   LibreTranslate needs to load AI models, please be patient...\n\n")
-	if err := waitForServer(port, 3*time.Minute); err != nil {
+	if err := waitForServer(port, 10*time.Minute); err != nil {
 		cmd.Process.Kill()
 		return fmt.Errorf("server failed to start: %w", err)
 	}
