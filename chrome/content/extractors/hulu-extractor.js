@@ -79,8 +79,38 @@ class HuluExtractor extends BaseExtractor {
         return;
       }
 
+      // Check if container is still in DOM (Hulu may have replaced it during ads)
+      if (this.containerElement && !document.contains(this.containerElement)) {
+        this.logger?.info('Hulu container was removed, re-initializing...');
+        this.reinitialize();
+        return;
+      }
+
+      // Check if overlay still exists, re-inject if needed
+      const injector = window.DualSubsInjector;
+      if (injector && !injector.exists()) {
+        this.logger?.info('Overlay missing, re-injecting...');
+        this.tryInjectDOM();
+      }
+
       this.debouncedExtract();
     }, 500);
+  }
+
+  /**
+   * Re-initialize after container change
+   */
+  reinitialize() {
+    // Clear old state
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    this.containerElement = null;
+    this.lastText = '';
+
+    // Re-initialize
+    this.waitForElements();
   }
 
   /**

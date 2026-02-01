@@ -207,18 +207,20 @@
   }
 
   /**
-   * Handle page navigation (for YouTube)
+   * Handle page navigation (for SPAs like YouTube and Netflix)
    */
   function setupNavigationListeners() {
-    // YouTube uses history API for navigation
-    if (currentPlatform === CONSTANTS.PLATFORMS.YOUTUBE) {
+    // YouTube, Netflix, and Hulu use history API for navigation
+    if (currentPlatform === CONSTANTS.PLATFORMS.YOUTUBE ||
+        currentPlatform === CONSTANTS.PLATFORMS.NETFLIX ||
+        currentPlatform === CONSTANTS.PLATFORMS.HULU) {
       let lastUrl = location.href;
 
       new MutationObserver(() => {
         const url = location.href;
         if (url !== lastUrl) {
           lastUrl = url;
-          logger?.info('YouTube navigation detected');
+          logger?.info(`${currentPlatform} navigation detected: ${url}`);
 
           // Restart extractor on navigation
           if (currentExtractor && isEnabled) {

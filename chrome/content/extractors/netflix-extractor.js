@@ -56,8 +56,38 @@ class NetflixExtractor extends BaseExtractor {
         return;
       }
 
+      // Check if container is still in DOM (Netflix may have replaced it)
+      if (this.containerElement && !document.contains(this.containerElement)) {
+        this.logger?.info('Netflix container was removed, re-initializing...');
+        this.reinitialize();
+        return;
+      }
+
+      // Check if overlay still exists, re-inject if needed
+      const injector = window.DualSubsInjector;
+      if (injector && !injector.exists()) {
+        this.logger?.info('Overlay missing, re-injecting...');
+        this.tryInjectDOM();
+      }
+
       this.debouncedExtract();
     }, 500);
+  }
+
+  /**
+   * Re-initialize after container change
+   */
+  reinitialize() {
+    // Clear old state
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    this.containerElement = null;
+    this.lastText = '';
+
+    // Re-initialize
+    this.waitForElements();
   }
 
   /**
