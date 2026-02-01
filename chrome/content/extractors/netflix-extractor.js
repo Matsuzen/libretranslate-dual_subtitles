@@ -13,22 +13,8 @@ class NetflixExtractor extends BaseExtractor {
   init() {
     this.logger?.info('Initializing Netflix extractor');
 
-    // Initialize the prefetcher for cache warming (runs in background)
-    this.initPrefetcher();
-
     // Wait for video container and subtitle elements to load
     this.waitForElements();
-  }
-
-  /**
-   * Initialize the subtitle prefetcher for cache warming
-   */
-  initPrefetcher() {
-    const prefetcher = window.DualSubsPrefetcher;
-    if (prefetcher) {
-      prefetcher.init();
-      this.logger?.info('Subtitle prefetcher initialized for cache warming');
-    }
   }
 
   /**
@@ -170,12 +156,6 @@ class NetflixExtractor extends BaseExtractor {
     if (this.subtitleCheckInterval) {
       clearInterval(this.subtitleCheckInterval);
       this.subtitleCheckInterval = null;
-    }
-
-    // Clear prefetcher
-    const prefetcher = window.DualSubsPrefetcher;
-    if (prefetcher) {
-      prefetcher.clear();
     }
 
     // Remove injected DOM

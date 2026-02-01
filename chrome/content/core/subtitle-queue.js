@@ -53,10 +53,7 @@ class SubtitleQueue {
     this.currentSubtitle.timestamp = timestamp;
     this.currentSubtitle.translated = ''; // Will be updated when translation completes
 
-    // Show original immediately
-    this.displaySubtitle(text, '');
-
-    // Request translation
+    // Request translation - display will happen when translation is ready
     this.requestTranslation(text, timestamp);
   }
 
@@ -68,11 +65,11 @@ class SubtitleQueue {
   async requestTranslation(text, timestamp) {
     const translationManager = window.DualSubsTranslationManager;
 
-    // Set timeout to clear subtitle if translation takes too long
+    // Set timeout - if translation takes too long, show original only
     this.translationTimeout = setTimeout(() => {
-      if (this.currentSubtitle.timestamp === timestamp) {
+      if (this.currentSubtitle.timestamp === timestamp && !this.currentSubtitle.translated) {
         this.logger?.warn('Translation timeout, showing original only');
-        // Keep showing original subtitle only
+        this.displaySubtitle(text, '');
       }
     }, this.CONSTANTS.EXTRACTION.SUBTITLE_TIMEOUT);
 
