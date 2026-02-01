@@ -18,3 +18,9 @@
 .dual-subtitle-translated {
   background-color: rgba(0, 0, 0, 0.35);
 }
+
+/* Hide native Netflix subtitles */
+.player-timedtext {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}

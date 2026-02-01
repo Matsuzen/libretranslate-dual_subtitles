@@ -6,7 +6,8 @@
 
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "webRequest"
   ],
 
   "host_permissions": [
@@ -14,7 +15,8 @@
     "https://*.youtube.com/*",
     "https://*.hulu.com/*",
     "https://libretranslate.com/*",
-    "https://*.libretranslate.com/*"
+    "https://*.libretranslate.com/*",
+    "https://*.nflxvideo.net/*"
   ],
 
   "background": {
@@ -35,6 +37,8 @@
         "content/core/subtitle-queue.js",
         "content/core/dom-injector.js",
         "content/core/subtitle-renderer.js",
+        "content/core/ttml-parser.js",
+        "content/core/subtitle-prefetcher.js",
         "content/extractors/base-extractor.js",
         "content/extractors/netflix-extractor.js",
         "content/main.js"

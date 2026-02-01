@@ -208,4 +208,55 @@ chrome.runtime.onConnect.addListener((port) => {
   console.log('[DualSubs] Port connected:', port.name);
 });
 
+// Track processed subtitle URLs to avoid duplicates
+const processedSubtitleUrls = new Set();
+
+// Intercept Netflix subtitle requests
+chrome.webRequest.onCompleted.addListener(
+  async (details) => {
+    // Check if this is a Netflix subtitle file (TTML)
+    if (details.url.includes('oca.nflxvideo.net/?o=')) {
+      // Skip if already processed
+      if (processedSubtitleUrls.has(details.url)) {
+        return;
+      }
+      processedSubtitleUrls.add(details.url);
+
+      console.log('[DualSubs] Detected Netflix subtitle request:', details.url);
+
+      try {
+        // Fetch the subtitle file
+        const response = await fetch(details.url);
+        const ttmlContent = await response.text();
+
+        // Check if it's actually a TTML file
+        if (ttmlContent.includes('<tt') || ttmlContent.includes('xml:id="subtitle')) {
+          console.log('[DualSubs] TTML subtitle file detected, forwarding to content script');
+
+          // Find Netflix tabs and send the subtitle data
+          const tabs = await chrome.tabs.query({ url: '*://*.netflix.com/*' });
+          for (const tab of tabs) {
+            chrome.tabs.sendMessage(tab.id, {
+              type: 'SUBTITLE_DATA',
+              data: ttmlContent,
+              url: details.url
+            }).catch(() => {
+              // Tab might not have content script loaded
+            });
+          }
+        }
+      } catch (error) {
+        console.error('[DualSubs] Error fetching subtitle file:', error);
+      }
+    }
+  },
+  { urls: ['*://*.nflxvideo.net/*'] }
+);
+
+// Clear processed URLs periodically (every 30 minutes) to allow re-fetch if needed
+setInterval(() => {
+  processedSubtitleUrls.clear();
+  console.log('[DualSubs] Cleared processed subtitle URLs cache');
+}, 30 * 60 * 1000);
+
 console.log('[DualSubs] Service worker initialized');

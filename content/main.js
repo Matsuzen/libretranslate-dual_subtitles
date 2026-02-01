@@ -117,6 +117,10 @@
           sendResponse({ success: true });
           break;
 
+        case 'SUBTITLE_DATA':
+          // Handled by prefetcher, ignore here
+          break;
+
         default:
           logger?.warn('Unknown message type:', message.type);
       }

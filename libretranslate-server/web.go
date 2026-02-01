@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/fatih/color"
 )
+
+// libreTranslatePort is the port where LibreTranslate server runs
+var libreTranslatePort = 5000
 
 // startWebInterface starts the web management interface
 func startWebInterface(port int) error {
@@ -16,6 +20,8 @@ func startWebInterface(port int) error {
 	http.HandleFunc("/api/status", handleStatus)
 	http.HandleFunc("/api/start", handleStartAPI)
 	http.HandleFunc("/api/stop", handleStopAPI)
+	http.HandleFunc("/translate", handleTranslateProxy)
+	http.HandleFunc("/languages", handleLanguagesProxy)
 
 	addr := fmt.Sprintf(":%d", port)
 	color.Green("✅ Web interface running at http://localhost:%d\n", port)
@@ -110,6 +116,87 @@ func handleStopAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(response)
+}
+
+// setCORSHeaders sets CORS headers required for browser extensions to access localhost
+func setCORSHeaders(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		origin = "*"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", origin)
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	// Required for Private Network Access (Chrome 94+)
+	w.Header().Set("Access-Control-Allow-Private-Network", "true")
+}
+
+// handleTranslateProxy proxies translation requests to LibreTranslate with CORS headers
+func handleTranslateProxy(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+
+	// Handle preflight OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Proxy the request to LibreTranslate
+	targetURL := fmt.Sprintf("http://127.0.0.1:%d/translate", libreTranslatePort)
+
+	proxyReq, err := http.NewRequest(r.Method, targetURL, r.Body)
+	if err != nil {
+		http.Error(w, "Failed to create proxy request", http.StatusInternalServerError)
+		return
+	}
+
+	// Copy headers
+	proxyReq.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+
+	client := &http.Client{}
+	resp, err := client.Do(proxyReq)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("LibreTranslate server not responding: %v", err), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy response headers
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.WriteHeader(resp.StatusCode)
+
+	// Copy response body
+	io.Copy(w, resp.Body)
+}
+
+// handleLanguagesProxy proxies language list requests to LibreTranslate with CORS headers
+func handleLanguagesProxy(w http.ResponseWriter, r *http.Request) {
+	setCORSHeaders(w, r)
+
+	// Handle preflight OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Proxy the request to LibreTranslate
+	targetURL := fmt.Sprintf("http://127.0.0.1:%d/languages", libreTranslatePort)
+
+	resp, err := http.Get(targetURL)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("LibreTranslate server not responding: %v", err), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy response headers
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.WriteHeader(resp.StatusCode)
+
+	// Copy response body
+	io.Copy(w, resp.Body)
 }
 
 // HTML template for web interface
