@@ -22,6 +22,7 @@
 }
 
 .dual-subtitle-wrapper {
+  --text-scale: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,7 +43,7 @@
 
 /* Original subtitle */
 .dual-subtitle-original {
-  font-size: 1.5em;
+  font-size: calc(1.5em * var(--text-scale));
   font-weight: bold;
   color: #ffffff;
   text-shadow:
@@ -64,7 +65,7 @@
 
 /* Translated subtitle */
 .dual-subtitle-translated {
-  font-size: 1.3em;
+  font-size: calc(1.3em * var(--text-scale));
   font-weight: normal;
   color: #ffff00;
   text-shadow:
@@ -99,11 +100,11 @@
   }
 
   .dual-subtitle-original {
-    font-size: 1.2em;
+    font-size: calc(1.2em * var(--text-scale));
   }
 
   .dual-subtitle-translated {
-    font-size: 1em;
+    font-size: calc(1em * var(--text-scale));
   }
 
   .dual-subtitle-wrapper.layout-side-by-side {

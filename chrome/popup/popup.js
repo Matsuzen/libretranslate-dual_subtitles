@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sourceLangSelect = document.getElementById('sourceLang');
   const targetLangSelect = document.getElementById('targetLang');
   const layoutModeSelect = document.getElementById('layoutMode');
+  const textSizeSelect = document.getElementById('textSize');
   const apiEndpointInput = document.getElementById('apiEndpoint');
   const debugModeCheckbox = document.getElementById('debugMode');
   const saveButton = document.getElementById('saveButton');
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'sourceLang',
         'targetLang',
         'layoutMode',
+        'textSize',
         'apiEndpoint',
         'debugMode'
       ]);
@@ -89,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       sourceLangSelect.value = settings.sourceLang || 'auto';
       targetLangSelect.value = settings.targetLang || 'en';
       layoutModeSelect.value = settings.layoutMode || 'below';
+      textSizeSelect.value = settings.textSize ?? 1;
       apiEndpointInput.value = settings.apiEndpoint || 'https://libretranslate.com';
       debugModeCheckbox.checked = settings.debugMode || false;
 
@@ -110,6 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         sourceLang: sourceLangSelect.value,
         targetLang: targetLangSelect.value,
         layoutMode: layoutModeSelect.value,
+        textSize: parseFloat(textSizeSelect.value),
         apiEndpoint: apiEndpointInput.value.trim() || 'https://libretranslate.com',
         debugMode: debugModeCheckbox.checked
       };
@@ -225,6 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   sourceLangSelect.addEventListener('change', () => showStatus('Don\'t forget to save!', 'success'));
   targetLangSelect.addEventListener('change', () => showStatus('Don\'t forget to save!', 'success'));
   layoutModeSelect.addEventListener('change', () => showStatus('Don\'t forget to save!', 'success'));
+  textSizeSelect.addEventListener('change', () => showStatus('Don\'t forget to save!', 'success'));
 
   // Initialize
   populateLanguages();

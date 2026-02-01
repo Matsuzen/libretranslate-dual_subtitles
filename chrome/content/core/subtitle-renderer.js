@@ -10,6 +10,7 @@ class SubtitleRenderer {
     this.translatedElement = null;
 
     this.layoutMode = this.CONSTANTS.DEFAULTS.LAYOUT_MODE;
+    this.textSize = this.CONSTANTS.DEFAULTS.TEXT_SIZE;
     this.isEnabled = this.CONSTANTS.DEFAULTS.ENABLED;
 
     // Load settings
@@ -25,20 +26,24 @@ class SubtitleRenderer {
     try {
       const settings = await chrome.storage.sync.get([
         'layoutMode',
+        'textSize',
         'dualSubsEnabled'
       ]);
 
       this.layoutMode = settings.layoutMode || this.CONSTANTS.DEFAULTS.LAYOUT_MODE;
+      this.textSize = settings.textSize ?? this.CONSTANTS.DEFAULTS.TEXT_SIZE;
       this.isEnabled = settings.dualSubsEnabled ?? this.CONSTANTS.DEFAULTS.ENABLED;
 
       this.logger?.debug('Renderer settings loaded:', {
         layoutMode: this.layoutMode,
+        textSize: this.textSize,
         isEnabled: this.isEnabled
       });
 
       // Update layout if already initialized
       if (this.container) {
         this.updateLayout();
+        this.updateTextSize();
       }
     } catch (error) {
       this.logger?.error('Failed to load renderer settings:', error);
@@ -55,6 +60,11 @@ class SubtitleRenderer {
       this.updateLayout();
     }
 
+    if (settings.textSize !== undefined) {
+      this.textSize = settings.textSize;
+      this.updateTextSize();
+    }
+
     if (settings.dualSubsEnabled !== undefined) {
       this.isEnabled = settings.dualSubsEnabled;
 
@@ -65,6 +75,7 @@ class SubtitleRenderer {
 
     this.logger?.info('Renderer settings updated:', {
       layoutMode: this.layoutMode,
+      textSize: this.textSize,
       isEnabled: this.isEnabled
     });
   }
@@ -115,8 +126,9 @@ class SubtitleRenderer {
     // Add wrapper to container
     this.container.appendChild(wrapper);
 
-    // Apply layout
+    // Apply layout and text size
     this.updateLayout();
+    this.updateTextSize();
 
     this.logger?.debug('Subtitle elements created');
   }
@@ -141,6 +153,19 @@ class SubtitleRenderer {
       wrapper.classList.add('layout-below');
       this.logger?.debug('Layout updated: below');
     }
+  }
+
+  /**
+   * Update text size
+   */
+  updateTextSize() {
+    if (!this.container) return;
+
+    const wrapper = this.container.querySelector('.dual-subtitle-wrapper');
+    if (!wrapper) return;
+
+    wrapper.style.setProperty('--text-scale', this.textSize);
+    this.logger?.debug('Text size updated:', this.textSize);
   }
 
   /**
@@ -258,6 +283,7 @@ class SubtitleRenderer {
     return {
       isEnabled: this.isEnabled,
       layoutMode: this.layoutMode,
+      textSize: this.textSize,
       isVisible: this.isVisible(),
       hasContainer: !!this.container
     };

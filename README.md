@@ -35,7 +35,7 @@ See `icons/README_ICONS.md` for detailed instructions.
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable **Developer mode** (toggle in top-right corner)
 3. Click **Load unpacked**
-4. Select the `/Users/julien.renald/personal/dual_translation` directory
+4. Select the `/Users/julien.renald/personal/dual_translation/chrome` directory
 5. The extension should now appear in your extensions list
 
 ### 3. Pin Extension (Optional)
@@ -86,7 +86,11 @@ The extension uses `https://libretranslate.com` by default. This is:
 
 For unlimited translations and better privacy, host your own LibreTranslate instance:
 
-#### Using Docker (Easiest)
+#### Using the Server Manager (libretranslate-server)
+
+Simply download the latest executable and run it with `./libretranslate-server start --port 5000`
+
+#### Using Docker
 
 ```bash
 docker run -d -p 5000:5000 libretranslate/libretranslate
@@ -193,7 +197,7 @@ LibreTranslate (default translation service):
 ### Project Structure
 
 ```
-dual_translation/
+chrome/
 ├── manifest.json              # Extension manifest (v3)
 ├── icons/                     # Extension icons
 ├── utils/                     # Utility modules

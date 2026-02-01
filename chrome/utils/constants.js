@@ -113,6 +113,7 @@ const CONSTANTS = {
     SOURCE_LANG: 'sourceLang',
     TARGET_LANG: 'targetLang',
     LAYOUT_MODE: 'layoutMode',
+    TEXT_SIZE: 'textSize',
     API_ENDPOINT: 'apiEndpoint',
     DEBUG_MODE: 'debugMode',
     CACHE_DATA: 'cacheData',
@@ -125,6 +126,7 @@ const CONSTANTS = {
     SOURCE_LANG: 'auto', // Auto-detect
     TARGET_LANG: 'en',
     LAYOUT_MODE: 'below',
+    TEXT_SIZE: 1,
     DEBUG_MODE: false,
     API_ENDPOINT: 'https://libretranslate.com'
   },
